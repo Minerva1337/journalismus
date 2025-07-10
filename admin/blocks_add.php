@@ -1,8 +1,9 @@
 <?php
 include 'db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $stmt = $conn->prepare("INSERT INTO blocks (name, description, base_value, multiplier, max_budget, category) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssddds", $_POST['name'], $_POST['description'], $_POST['base_value'], $_POST['multiplier'], $_POST['max_budget'], $_POST['category']);
+    $stmt = $conn->prepare("INSERT INTO blocks (name, kosten, reichweite, qualität, description) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sddds", $_POST['name'], $_POST['kosten'], $_POST['reichweite'], $_POST['qualität'], $_POST['description']);
+
     $stmt->execute();
     header("Location: blocks.php");
     exit;
@@ -13,9 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <form method="post">
   <label>Name: <input name="name" required></label><br>
   <label>Beschreibung: <textarea name="description"></textarea></label><br>
-  <label>Basiswert: <input type="number" name="base_value" step="0.01" required></label><br>
-  <label>Multiplikator: <input type="number" name="multiplier" step="0.01" required></label><br>
-  <label>Max Budget: <input type="number" name="max_budget" required></label><br>
-  <label>Kategorie: <input name="category"></label><br><br>
+  <label>Kosten: <input name="kosten" type="number" step="0.01" required></label><br>
+  <label>Reichweite: <input name="reichweite" type="number" required></label><br>
+  <label>Qualität: <input name="qualität" type="number" min="1" max="10" required></label><br>
   <button type="submit">Speichern</button>
 </form>
