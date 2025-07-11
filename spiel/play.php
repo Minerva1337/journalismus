@@ -8,15 +8,16 @@ if (!isset($_SESSION['group_id'])) {
     exit;
 }
 
-// Hole Budget der aktuellen Gruppe
+// Gruppe laden
 $group_id = $_SESSION['group_id'];
 $group_stmt = $conn->prepare("SELECT * FROM groups WHERE id = ?");
 $group_stmt->bind_param("i", $group_id);
 $group_stmt->execute();
 $group = $group_stmt->get_result()->fetch_assoc();
 
-// Hole alle Blöcke
+// Blöcke und Slots laden
 $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
+$slots = $conn->query("SELECT * FROM slots ORDER BY id ASC")->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -26,7 +27,7 @@ $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
   <style>
     body { font-family: sans-serif; }
     .container { display: flex; gap: 40px; }
-    .column { border: 1px solid #aaa; padding: 10px; width: 300px; min-height: 400px; }
+    .column, .slot { border: 1px solid #aaa; padding: 10px; width: 300px; min-height: 150px; margin-top: 10px; }
     .block { border: 1px solid #ccc; margin: 5px; padding: 10px; background: #f0f0f0; cursor: grab; }
     .drag-over { background-color: #e0ffe0; }
   </style>
@@ -53,9 +54,13 @@ $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
     <?php endforeach; ?>
   </div>
 
-  <div class="column" id="slots">
-    <h3>🧩 Deine Auswahl</h3>
-    <!-- Hier landen die ausgewählten Blöcke -->
+  <div>
+    <h3>🧩 Deine Slots</h3>
+    <?php foreach ($slots as $slot): ?>
+      <div class="slot" id="slot-<?= $slot['id'] ?>" data-slot-id="<?= $slot['id'] ?>">
+        <strong><?= htmlspecialchars($slot['name']) ?></strong>
+      </div>
+    <?php endforeach; ?>
   </div>
 </div>
 
@@ -85,19 +90,17 @@ document.addEventListener("dragend", function (e) {
   }
 });
 
-["backlog", "slots"].forEach(id => {
-  const column = document.getElementById(id);
-
-  column.addEventListener("dragover", function (e) {
+[...document.querySelectorAll(".slot"), document.getElementById("backlog")].forEach(container => {
+  container.addEventListener("dragover", function (e) {
     e.preventDefault();
     this.classList.add("drag-over");
   });
 
-  column.addEventListener("dragleave", function () {
+  container.addEventListener("dragleave", function () {
     this.classList.remove("drag-over");
   });
 
-  column.addEventListener("drop", function (e) {
+  container.addEventListener("drop", function (e) {
     e.preventDefault();
     this.classList.remove("drag-over");
     if (!draggedElement || draggedElement.parentNode === this) return;
@@ -106,14 +109,14 @@ document.addEventListener("dragend", function (e) {
     const from = draggedElement.parentNode;
     const to = this;
 
-    if (from.id === "backlog" && to.id === "slots") {
+    if (from.id === "backlog" && to.classList.contains("slot")) {
       if (budget >= kosten) {
         budget -= kosten;
         to.appendChild(draggedElement);
       } else {
         alert("Nicht genug Budget!");
       }
-    } else if (from.id === "slots" && to.id === "backlog") {
+    } else if (from.classList.contains("slot") && to.id === "backlog") {
       budget += kosten;
       to.appendChild(draggedElement);
     }
@@ -123,7 +126,7 @@ document.addEventListener("dragend", function (e) {
 });
 
 document.getElementById("auswertungForm").addEventListener("submit", function(e) {
-  const selected = Array.from(document.querySelectorAll("#slots .block"))
+  const selected = Array.from(document.querySelectorAll(".slot .block"))
     .map(b => b.getAttribute("data-id"));
 
   if (selected.length === 0) {
