@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 include '../admin/db.php';
@@ -27,8 +28,7 @@ $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
     .container { display: flex; gap: 40px; }
     .column { border: 1px solid #aaa; padding: 10px; width: 300px; min-height: 400px; }
     .block { border: 1px solid #ccc; margin: 5px; padding: 10px; background: #f0f0f0; cursor: grab; }
-    .block.dragging { opacity: 0.5; }
-    .info { margin-bottom: 10px; }
+    .drag-over { background-color: #e0ffe0; }
   </style>
 </head>
 <body>
@@ -41,6 +41,8 @@ $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
     <?php foreach ($blocks as $block): ?>
       <div class="block" draggable="true"
            data-kosten="<?= $block['kosten'] ?>"
+           data-reichweite="<?= $block['reichweite'] ?>"
+           data-qualität="<?= $block['qualität'] ?>"
            data-id="<?= $block['id'] ?>">
         <strong><?= htmlspecialchars($block['name']) ?></strong><br>
         <em><?= htmlspecialchars($block['description']) ?></em><br>
@@ -55,128 +57,91 @@ $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
     <h3>🧩 Deine Auswahl</h3>
     <!-- Hier landen die ausgewählten Blöcke -->
   </div>
-  <form id="auswertungForm" method="post" action="auswertung.php">
-    <input type="hidden" name="selected_blocks[]" id="selectedBlocksInput" value="">
-    <button type="submit">📈 Ergebnis berechnen</button>
-  </form>
-
-  <script>
-  document.getElementById("auswertungForm").addEventListener("submit", function(e) {
-    const selected = Array.from(document.querySelectorAll("#slots .block"))
-      .map(b => b.getAttribute("data-id"));
-
-    if (selected.length === 0) {
-      alert("Bitte wähle mindestens einen Block aus.");
-      e.preventDefault();
-      return;
-    }
-
-    // Hidden input aktualisieren
-    const input = document.getElementById("selectedBlocksInput");
-    input.value = "";
-
-    selected.forEach(id => {
-      const hidden = document.createElement("input");
-      hidden.type = "hidden";
-      hidden.name = "selected_blocks[]";
-      hidden.value = id;
-      this.appendChild(hidden);
-    });
-  });
-  </script>
-
 </div>
+
+<br>
+<form id="auswertungForm" method="post" action="auswertung.php">
+  <input type="hidden" name="selected_blocks[]" id="selectedBlocksInput" value="">
+  <button type="submit">📈 Ergebnis berechnen</button>
+</form>
 
 <script>
 let budget = parseFloat(document.getElementById("budget").textContent);
-const backlog = document.getElementById("backlog");
-const slots = document.getElementById("slots");
+const budgetDisplay = document.getElementById("budget");
 
-let dragged = null;
+let draggedElement = null;
 
-document.querySelectorAll(".block").forEach(block => {
-  block.addEventListener("dragstart", (e) => {
-    dragged = block;
-    block.classList.add("dragging");
-  });
-
-  block.addEventListener("dragend", () => {
-    dragged = null;
-    document.querySelectorAll(".block").forEach(b => b.classList.remove("dragging"));
-  });
+document.addEventListener("dragstart", function (e) {
+  if (e.target.classList.contains("block")) {
+    draggedElement = e.target;
+    setTimeout(() => e.target.style.display = "none", 0);
+  }
 });
 
-[backlog, slots].forEach(container => {
-  container.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("dragend", function (e) {
+  if (draggedElement) {
+    draggedElement.style.display = "block";
+    draggedElement = null;
+  }
+});
 
-  container.addEventListener("drop", e => {
+["backlog", "slots"].forEach(id => {
+  const column = document.getElementById(id);
+
+  column.addEventListener("dragover", function (e) {
     e.preventDefault();
-    if (!dragged) return;
+    this.classList.add("drag-over");
+  });
 
-    const kosten = parseFloat(dragged.getAttribute("data-kosten"));
-    const from = dragged.parentElement;
-    const to = container;
+  column.addEventListener("dragleave", function () {
+    this.classList.remove("drag-over");
+  });
 
-    // Block wird aus Backlog gezogen -> Budget verringern
+  column.addEventListener("drop", function (e) {
+    e.preventDefault();
+    this.classList.remove("drag-over");
+    if (!draggedElement || draggedElement.parentNode === this) return;
+
+    const kosten = parseFloat(draggedElement.dataset.kosten);
+    const from = draggedElement.parentNode;
+    const to = this;
+
     if (from.id === "backlog" && to.id === "slots") {
       if (budget >= kosten) {
-        to.appendChild(dragged);
         budget -= kosten;
+        to.appendChild(draggedElement);
       } else {
         alert("Nicht genug Budget!");
-        return;
       }
-    }
-
-    // Block wird zurück ins Backlog geschoben -> Budget zurückerstatten
-    else if (from.id === "slots" && to.id === "backlog") {
-      to.appendChild(dragged);
+    } else if (from.id === "slots" && to.id === "backlog") {
       budget += kosten;
+      to.appendChild(draggedElement);
     }
 
-    document.getElementById("budget").textContent = budget.toFixed(2);
+    budgetDisplay.textContent = budget.toFixed(2);
   });
 });
-<br><br>
-<button onclick="berechneErgebnis()">📈 Ergebnis berechnen</button>
 
-<div id="auswertung" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px;"></div>
+document.getElementById("auswertungForm").addEventListener("submit", function(e) {
+  const selected = Array.from(document.querySelectorAll("#slots .block"))
+    .map(b => b.getAttribute("data-id"));
 
-<script>
-function berechneErgebnis() {
-  const slots = document.querySelectorAll("#slots .block");
-  let kosten = 0, reichweite = 0, qualitätSumme = 0;
-
-  if (slots.length === 0) {
+  if (selected.length === 0) {
     alert("Bitte wähle mindestens einen Block aus.");
+    e.preventDefault();
     return;
   }
 
-  slots.forEach(block => {
-    const k = parseFloat(block.dataset.kosten);
-    const r = parseInt(block.dataset.reichweite);
-    const q = parseInt(block.dataset.qualität);
-
-    kosten += k;
-    reichweite += r;
-    qualitätSumme += q;
+  const form = this;
+  selected.forEach(id => {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "selected_blocks[]";
+    input.value = id;
+    form.appendChild(input);
   });
-
-  const durchschnittQualität = qualitätSumme / slots.length;
-  const qualitätsfaktor = durchschnittQualität / 10;
-  const umsatz = (reichweite * qualitätsfaktor) - kosten;
-
-  document.getElementById("auswertung").innerHTML = `
-    <h3>📊 Auswertung</h3>
-    <p>✅ Anzahl ausgewählter Blöcke: ${slots.length}</p>
-    <p>💰 Gesamtkosten: ${kosten.toFixed(2)} €</p>
-    <p>📡 Gesamtreichweite: ${reichweite}</p>
-    <p>🎯 Durchschnittliche Qualität: ${durchschnittQualität.toFixed(2)} / 10</p>
-    <p><strong>📈 Umsatz (Ergebnis): ${umsatz.toFixed(2)} €</strong></p>
-  `;
-}
+});
 </script>
-
 
 </body>
 </html>
