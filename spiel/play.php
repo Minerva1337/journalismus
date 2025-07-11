@@ -55,6 +55,36 @@ $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
     <h3>🧩 Deine Auswahl</h3>
     <!-- Hier landen die ausgewählten Blöcke -->
   </div>
+  <form id="auswertungForm" method="post" action="auswertung.php">
+    <input type="hidden" name="selected_blocks[]" id="selectedBlocksInput" value="">
+    <button type="submit">📈 Ergebnis berechnen</button>
+  </form>
+
+  <script>
+  document.getElementById("auswertungForm").addEventListener("submit", function(e) {
+    const selected = Array.from(document.querySelectorAll("#slots .block"))
+      .map(b => b.getAttribute("data-id"));
+
+    if (selected.length === 0) {
+      alert("Bitte wähle mindestens einen Block aus.");
+      e.preventDefault();
+      return;
+    }
+
+    // Hidden input aktualisieren
+    const input = document.getElementById("selectedBlocksInput");
+    input.value = "";
+
+    selected.forEach(id => {
+      const hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.name = "selected_blocks[]";
+      hidden.value = id;
+      this.appendChild(hidden);
+    });
+  });
+  </script>
+
 </div>
 
 <script>
