@@ -8,16 +8,14 @@ if (!isset($_SESSION['group_id'])) {
     exit;
 }
 
-// Gruppe laden
 $group_id = $_SESSION['group_id'];
 $group_stmt = $conn->prepare("SELECT * FROM groups WHERE id = ?");
 $group_stmt->bind_param("i", $group_id);
 $group_stmt->execute();
 $group = $group_stmt->get_result()->fetch_assoc();
 
-// Blöcke und Slots laden
 $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
-$slots = $conn->query("SELECT * FROM slots ORDER BY id ASC")->fetch_all(MYSQLI_ASSOC);
+$slots = $conn->query("SELECT * FROM slots")->fetch_all(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -26,9 +24,11 @@ $slots = $conn->query("SELECT * FROM slots ORDER BY id ASC")->fetch_all(MYSQLI_A
   <title>Planspiel</title>
   <style>
     body { font-family: sans-serif; }
-    .container { display: flex; gap: 40px; }
-    .column, .slot { border: 1px solid #aaa; padding: 10px; width: 300px; min-height: 150px; margin-top: 10px; }
+    .container { display: flex; gap: 40px; align-items: flex-start; }
+    .column { border: 1px solid #aaa; padding: 10px; width: 300px; min-height: 400px; }
     .block { border: 1px solid #ccc; margin: 5px; padding: 10px; background: #f0f0f0; cursor: grab; }
+    .slot-table { border-collapse: collapse; }
+    .slot-cell { border: 1px solid #aaa; width: 200px; height: 150px; vertical-align: top; padding: 5px; }
     .drag-over { background-color: #e0ffe0; }
   </style>
 </head>
@@ -55,12 +55,26 @@ $slots = $conn->query("SELECT * FROM slots ORDER BY id ASC")->fetch_all(MYSQLI_A
   </div>
 
   <div>
-    <h3>🧩 Deine Slots</h3>
-    <?php foreach ($slots as $slot): ?>
-      <div class="slot" id="slot-<?= $slot['id'] ?>" data-slot-id="<?= $slot['id'] ?>">
-        <strong><?= htmlspecialchars($slot['name']) ?></strong>
-      </div>
-    <?php endforeach; ?>
+    <h3>🧩 Slot-Tabelle</h3>
+    <table class="slot-table">
+      <?php
+        $grid = [];
+        foreach ($slots as $slot) {
+            $grid[$slot['row']][$slot['col']] = $slot;
+        }
+        ksort($grid);
+        foreach ($grid as $row) {
+            echo "<tr>";
+            ksort($row);
+            foreach ($row as $slot) {
+                echo '<td class="slot-cell" id="slot-' . $slot['id'] . '" data-slot-id="' . $slot['id'] . '">';
+                echo '<strong>' . htmlspecialchars($slot['name']) . '</strong><br>';
+                echo '</td>';
+            }
+            echo "</tr>";
+        }
+      ?>
+    </table>
   </div>
 </div>
 
@@ -90,7 +104,7 @@ document.addEventListener("dragend", function (e) {
   }
 });
 
-[...document.querySelectorAll(".slot"), document.getElementById("backlog")].forEach(container => {
+[...document.querySelectorAll(".slot-cell"), document.getElementById("backlog")].forEach(container => {
   container.addEventListener("dragover", function (e) {
     e.preventDefault();
     this.classList.add("drag-over");
@@ -109,14 +123,14 @@ document.addEventListener("dragend", function (e) {
     const from = draggedElement.parentNode;
     const to = this;
 
-    if (from.id === "backlog" && to.classList.contains("slot")) {
+    if (from.id === "backlog" && to.classList.contains("slot-cell")) {
       if (budget >= kosten) {
         budget -= kosten;
         to.appendChild(draggedElement);
       } else {
         alert("Nicht genug Budget!");
       }
-    } else if (from.classList.contains("slot") && to.id === "backlog") {
+    } else if (from.classList.contains("slot-cell") && to.id === "backlog") {
       budget += kosten;
       to.appendChild(draggedElement);
     }
@@ -126,7 +140,7 @@ document.addEventListener("dragend", function (e) {
 });
 
 document.getElementById("auswertungForm").addEventListener("submit", function(e) {
-  const selected = Array.from(document.querySelectorAll(".slot .block"))
+  const selected = Array.from(document.querySelectorAll(".slot-cell .block"))
     .map(b => b.getAttribute("data-id"));
 
   if (selected.length === 0) {
