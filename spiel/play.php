@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include '../admin/db.php';
@@ -9,14 +8,51 @@ if (!isset($_SESSION['group_id'])) {
 }
 
 $group_id = $_SESSION['group_id'];
+
+// Gruppe laden
 $group_stmt = $conn->prepare("SELECT * FROM groups WHERE id = ?");
 $group_stmt->bind_param("i", $group_id);
 $group_stmt->execute();
 $group = $group_stmt->get_result()->fetch_assoc();
+$original_budget = $group['budget'];
 
+// Blöcke & Slots laden
 $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
 $slots = $conn->query("SELECT * FROM slots")->fetch_all(MYSQLI_ASSOC);
+
+// Belegungen der Gruppe laden
+$belegungen = [];
+$res = $conn->prepare("SELECT slot_id, block_id FROM slot_belegungen WHERE group_id = ?");
+$res->bind_param("i", $group_id);
+$res->execute();
+$result = $res->get_result();
+while ($row = $result->fetch_assoc()) {
+    $belegungen[$row['slot_id']] = $row['block_id'];
+}
+
+// Blöcke in Map
+$block_map = [];
+foreach ($blocks as $block) {
+    $block_map[$block['id']] = $block;
+}
+
+// Restbudget berechnen
+$verbrauchtes_budget = 0;
+foreach ($belegungen as $block_id) {
+    if (isset($block_map[$block_id])) {
+        $verbrauchtes_budget += $block_map[$block_id]['kosten'];
+    }
+}
+$verbleibendes_budget = $original_budget - $verbrauchtes_budget;
+
+// Slots strukturieren
+$grid = [];
+foreach ($slots as $slot) {
+    $grid[$slot['row']][$slot['col']] = $slot;
+}
+ksort($grid);
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -34,53 +70,65 @@ $slots = $conn->query("SELECT * FROM slots")->fetch_all(MYSQLI_ASSOC);
 </head>
 <body>
 
-<h2>Willkommen, Gruppe: <?= htmlspecialchars($group['name']) ?> | Budget: <span id="budget"><?= $group['budget'] ?></span> €</h2>
+<h2>Willkommen, Gruppe: <?= htmlspecialchars($group['name']) ?> | Budget: <span id="budget"><?= number_format($verbleibendes_budget, 2) ?></span> €</h2>
 
 <div class="container">
   <div class="column" id="backlog">
     <h3>📦 Backlog</h3>
-    <?php foreach ($blocks as $block): ?>
-      <div class="block" draggable="true"
-           data-kosten="<?= $block['kosten'] ?>"
-           data-reichweite="<?= $block['reichweite'] ?>"
-           data-qualität="<?= $block['qualität'] ?>"
-           data-id="<?= $block['id'] ?>">
-        <strong><?= htmlspecialchars($block['name']) ?></strong><br>
-        <em><?= htmlspecialchars($block['description']) ?></em><br>
-        Kosten: <?= $block['kosten'] ?> €<br>
-        Reichweite: <?= $block['reichweite'] ?><br>
-        Qualität: <?= $block['qualität'] ?>
-      </div>
-    <?php endforeach; ?>
+    <?php
+      foreach ($blocks as $block) {
+          if (!in_array($block['id'], $belegungen)) {
+              echo '<div class="block" draggable="true"
+                  data-kosten="' . $block['kosten'] . '"
+                  data-reichweite="' . $block['reichweite'] . '"
+                  data-qualität="' . $block['qualität'] . '"
+                  data-id="' . $block['id'] . '">';
+              echo '<strong>' . htmlspecialchars($block['name']) . '</strong><br>';
+              echo '<em>' . htmlspecialchars($block['description']) . '</em><br>';
+              echo 'Kosten: ' . $block['kosten'] . ' €<br>';
+              echo 'Reichweite: ' . $block['reichweite'] . '<br>';
+              echo 'Qualität: ' . $block['qualität'];
+              echo '</div>';
+          }
+      }
+    ?>
   </div>
 
   <div>
     <h3>🧩 Slot-Tabelle</h3>
     <table class="slot-table">
-      <?php
-        $grid = [];
-        foreach ($slots as $slot) {
-            $grid[$slot['row']][$slot['col']] = $slot;
-        }
-        ksort($grid);
-        foreach ($grid as $row) {
-            echo "<tr>";
-            ksort($row);
-            foreach ($row as $slot) {
-                echo '<td class="slot-cell" id="slot-' . $slot['id'] . '" data-slot-id="' . $slot['id'] . '">';
-                echo '<strong>' . htmlspecialchars($slot['name']) . '</strong><br>';
-                echo '</td>';
-            }
-            echo "</tr>";
-        }
-      ?>
+      <?php foreach ($grid as $row): ?>
+        <tr>
+          <?php foreach ($row as $slot): ?>
+            <td class="slot-cell" id="slot-<?= $slot['id'] ?>" data-slot-id="<?= $slot['id'] ?>">
+              <strong><?= htmlspecialchars($slot['name']) ?></strong><br>
+              <?php
+                if (isset($belegungen[$slot['id']])) {
+                    $block = $block_map[$belegungen[$slot['id']]];
+                    echo '<div class="block" draggable="true"
+                          data-kosten="' . $block['kosten'] . '"
+                          data-reichweite="' . $block['reichweite'] . '"
+                          data-qualität="' . $block['qualität'] . '"
+                          data-id="' . $block['id'] . '">';
+                    echo '<strong>' . htmlspecialchars($block['name']) . '</strong><br>';
+                    echo '<em>' . htmlspecialchars($block['description']) . '</em><br>';
+                    echo 'Kosten: ' . $block['kosten'] . ' €<br>';
+                    echo 'Reichweite: ' . $block['reichweite'] . '<br>';
+                    echo 'Qualität: ' . $block['qualität'];
+                    echo '</div>';
+                }
+              ?>
+            </td>
+          <?php endforeach; ?>
+        </tr>
+      <?php endforeach; ?>
     </table>
   </div>
 </div>
 
 <br>
 <form id="auswertungForm" method="post" action="auswertung.php">
-  <input type="hidden" name="selected_blocks[]" id="selectedBlocksInput" value="">
+  <input type="hidden" name="belegungen" id="belegungenInput">
   <button type="submit">📈 Ergebnis berechnen</button>
 </form>
 
@@ -140,23 +188,23 @@ document.addEventListener("dragend", function (e) {
 });
 
 document.getElementById("auswertungForm").addEventListener("submit", function(e) {
-  const selected = Array.from(document.querySelectorAll(".slot-cell .block"))
-    .map(b => b.getAttribute("data-id"));
+  e.preventDefault();
 
-  if (selected.length === 0) {
-    alert("Bitte wähle mindestens einen Block aus.");
-    e.preventDefault();
+  const belegungen = {};
+  document.querySelectorAll(".slot-cell").forEach(slot => {
+    const block = slot.querySelector(".block");
+    if (block) {
+      belegungen[slot.dataset.slotId] = block.dataset.id;
+    }
+  });
+
+  if (Object.keys(belegungen).length === 0) {
+    alert("Bitte mindestens einen Block platzieren.");
     return;
   }
 
-  const form = this;
-  selected.forEach(id => {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "selected_blocks[]";
-    input.value = id;
-    form.appendChild(input);
-  });
+  document.getElementById("belegungenInput").value = JSON.stringify(belegungen);
+  this.submit();
 });
 </script>
 
