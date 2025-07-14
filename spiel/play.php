@@ -81,7 +81,7 @@ $slots = $conn->query("SELECT * FROM slots")->fetch_all(MYSQLI_ASSOC);
 
 <br>
 <form id="auswertungForm" method="post" action="auswertung.php">
-  <input type="hidden" name="selected_blocks[]" id="selectedBlocksInput" value="">
+  <input type="hidden" name="belegungen" id="belegungenInput">
   <button type="submit">📈 Ergebnis berechnen</button>
 </form>
 
@@ -141,23 +141,26 @@ document.addEventListener("dragend", function (e) {
 });
 
 document.getElementById("auswertungForm").addEventListener("submit", function(e) {
-  const selected = Array.from(document.querySelectorAll(".slot-cell .block"))
-    .map(b => b.getAttribute("data-id"));
+  e.preventDefault();
 
-  if (selected.length === 0) {
-    alert("Bitte wähle mindestens einen Block aus.");
-    e.preventDefault();
+  const belegungen = {};
+
+  document.querySelectorAll(".slot-cell").forEach(slot => {
+    const block = slot.querySelector(".block");
+    if (block) {
+      const slotId = slot.dataset.slotId;
+      const blockId = block.dataset.id;
+      belegungen[slotId] = blockId;
+    }
+  });
+
+  if (Object.keys(belegungen).length === 0) {
+    alert("Bitte mindestens einen Block platzieren.");
     return;
   }
 
-  const form = this;
-  selected.forEach(id => {
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "selected_blocks[]";
-    input.value = id;
-    form.appendChild(input);
-  });
+  document.getElementById("belegungenInput").value = JSON.stringify(belegungen);
+  this.submit();
 });
 </script>
 
