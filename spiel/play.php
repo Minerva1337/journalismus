@@ -1,6 +1,5 @@
 
 <?php
-//Test
 session_start();
 include '../admin/db.php';
 
@@ -10,14 +9,41 @@ if (!isset($_SESSION['group_id'])) {
 }
 
 $group_id = $_SESSION['group_id'];
+
+// Gruppe laden
 $group_stmt = $conn->prepare("SELECT * FROM groups WHERE id = ?");
 $group_stmt->bind_param("i", $group_id);
 $group_stmt->execute();
 $group = $group_stmt->get_result()->fetch_assoc();
 
+// Blöcke & Slots laden
 $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
 $slots = $conn->query("SELECT * FROM slots")->fetch_all(MYSQLI_ASSOC);
+
+// Belegungen der Gruppe laden
+$belegungen = [];
+$res = $conn->prepare("SELECT slot_id, block_id FROM slot_belegungen WHERE group_id = ?");
+$res->bind_param("i", $group_id);
+$res->execute();
+$result = $res->get_result();
+while ($row = $result->fetch_assoc()) {
+    $belegungen[$row['slot_id']] = $row['block_id'];
+}
+
+// Blöcke in Map zur schnellen Zuordnung
+$block_map = [];
+foreach ($blocks as $block) {
+    $block_map[$block['id']] = $block;
+}
+
+// Slots strukturieren
+$grid = [];
+foreach ($slots as $slot) {
+    $grid[$slot['row']][$slot['col']] = $slot;
+}
+ksort($grid);
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -40,41 +66,53 @@ $slots = $conn->query("SELECT * FROM slots")->fetch_all(MYSQLI_ASSOC);
 <div class="container">
   <div class="column" id="backlog">
     <h3>📦 Backlog</h3>
-    <?php foreach ($blocks as $block): ?>
-      <div class="block" draggable="true"
-           data-kosten="<?= $block['kosten'] ?>"
-           data-reichweite="<?= $block['reichweite'] ?>"
-           data-qualität="<?= $block['qualität'] ?>"
-           data-id="<?= $block['id'] ?>">
-        <strong><?= htmlspecialchars($block['name']) ?></strong><br>
-        <em><?= htmlspecialchars($block['description']) ?></em><br>
-        Kosten: <?= $block['kosten'] ?> €<br>
-        Reichweite: <?= $block['reichweite'] ?><br>
-        Qualität: <?= $block['qualität'] ?>
-      </div>
-    <?php endforeach; ?>
+    <?php
+      foreach ($blocks as $block) {
+          if (!in_array($block['id'], $belegungen)) {
+              echo '<div class="block" draggable="true"
+                  data-kosten="' . $block['kosten'] . '"
+                  data-reichweite="' . $block['reichweite'] . '"
+                  data-qualität="' . $block['qualität'] . '"
+                  data-id="' . $block['id'] . '">';
+              echo '<strong>' . htmlspecialchars($block['name']) . '</strong><br>';
+              echo '<em>' . htmlspecialchars($block['description']) . '</em><br>';
+              echo 'Kosten: ' . $block['kosten'] . ' €<br>';
+              echo 'Reichweite: ' . $block['reichweite'] . '<br>';
+              echo 'Qualität: ' . $block['qualität'];
+              echo '</div>';
+          }
+      }
+    ?>
   </div>
 
   <div>
     <h3>🧩 Slot-Tabelle</h3>
     <table class="slot-table">
-      <?php
-        $grid = [];
-        foreach ($slots as $slot) {
-            $grid[$slot['row']][$slot['col']] = $slot;
-        }
-        ksort($grid);
-        foreach ($grid as $row) {
-            echo "<tr>";
-            ksort($row);
-            foreach ($row as $slot) {
-                echo '<td class="slot-cell" id="slot-' . $slot['id'] . '" data-slot-id="' . $slot['id'] . '">';
-                echo '<strong>' . htmlspecialchars($slot['name']) . '</strong><br>';
-                echo '</td>';
-            }
-            echo "</tr>";
-        }
-      ?>
+      <?php foreach ($grid as $row): ?>
+        <tr>
+          <?php foreach ($row as $slot): ?>
+            <td class="slot-cell" id="slot-<?= $slot['id'] ?>" data-slot-id="<?= $slot['id'] ?>">
+              <strong><?= htmlspecialchars($slot['name']) ?></strong><br>
+              <?php
+                if (isset($belegungen[$slot['id']])) {
+                    $block = $block_map[$belegungen[$slot['id']]];
+                    echo '<div class="block" draggable="true"
+                          data-kosten="' . $block['kosten'] . '"
+                          data-reichweite="' . $block['reichweite'] . '"
+                          data-qualität="' . $block['qualität'] . '"
+                          data-id="' . $block['id'] . '">';
+                    echo '<strong>' . htmlspecialchars($block['name']) . '</strong><br>';
+                    echo '<em>' . htmlspecialchars($block['description']) . '</em><br>';
+                    echo 'Kosten: ' . $block['kosten'] . ' €<br>';
+                    echo 'Reichweite: ' . $block['reichweite'] . '<br>';
+                    echo 'Qualität: ' . $block['qualität'];
+                    echo '</div>';
+                }
+              ?>
+            </td>
+          <?php endforeach; ?>
+        </tr>
+      <?php endforeach; ?>
     </table>
   </div>
 </div>
@@ -144,13 +182,10 @@ document.getElementById("auswertungForm").addEventListener("submit", function(e)
   e.preventDefault();
 
   const belegungen = {};
-
   document.querySelectorAll(".slot-cell").forEach(slot => {
     const block = slot.querySelector(".block");
     if (block) {
-      const slotId = slot.dataset.slotId;
-      const blockId = block.dataset.id;
-      belegungen[slotId] = blockId;
+      belegungen[slot.dataset.slotId] = block.dataset.id;
     }
   });
 
@@ -163,6 +198,5 @@ document.getElementById("auswertungForm").addEventListener("submit", function(e)
   this.submit();
 });
 </script>
-
 </body>
 </html>
