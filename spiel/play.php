@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include '../admin/db.php';
@@ -15,6 +14,7 @@ $group_stmt = $conn->prepare("SELECT * FROM groups WHERE id = ?");
 $group_stmt->bind_param("i", $group_id);
 $group_stmt->execute();
 $group = $group_stmt->get_result()->fetch_assoc();
+$original_budget = $group['budget'];
 
 // Blöcke & Slots laden
 $blocks = $conn->query("SELECT * FROM blocks")->fetch_all(MYSQLI_ASSOC);
@@ -30,11 +30,20 @@ while ($row = $result->fetch_assoc()) {
     $belegungen[$row['slot_id']] = $row['block_id'];
 }
 
-// Blöcke in Map zur schnellen Zuordnung
+// Blöcke in Map
 $block_map = [];
 foreach ($blocks as $block) {
     $block_map[$block['id']] = $block;
 }
+
+// Restbudget berechnen
+$verbrauchtes_budget = 0;
+foreach ($belegungen as $block_id) {
+    if (isset($block_map[$block_id])) {
+        $verbrauchtes_budget += $block_map[$block_id]['kosten'];
+    }
+}
+$verbleibendes_budget = $original_budget - $verbrauchtes_budget;
 
 // Slots strukturieren
 $grid = [];
@@ -61,7 +70,7 @@ ksort($grid);
 </head>
 <body>
 
-<h2>Willkommen, Gruppe: <?= htmlspecialchars($group['name']) ?> | Budget: <span id="budget"><?= $group['budget'] ?></span> €</h2>
+<h2>Willkommen, Gruppe: <?= htmlspecialchars($group['name']) ?> | Budget: <span id="budget"><?= number_format($verbleibendes_budget, 2) ?></span> €</h2>
 
 <div class="container">
   <div class="column" id="backlog">
@@ -198,5 +207,6 @@ document.getElementById("auswertungForm").addEventListener("submit", function(e)
   this.submit();
 });
 </script>
+
 </body>
 </html>
