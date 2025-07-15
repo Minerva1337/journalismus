@@ -30,6 +30,13 @@ while ($row = $result->fetch_assoc()) {
     $belegungen[$row['slot_id']] = $row['block_id'];
 }
 
+// Ausschlüsse laden
+$exclusion_res = $conn->query("SELECT block_id_1, block_id_2 FROM block_exclusions");
+$exclusions = [];
+while ($row = $exclusion_res->fetch_assoc()) {
+    $exclusions[] = [(int)$row['block_id_1'], (int)$row['block_id_2']];
+}
+
 // Blöcke in Map
 $block_map = [];
 foreach ($blocks as $block) {
@@ -133,9 +140,18 @@ ksort($grid);
 </form>
 
 <script>
+const blockExclusions = <?= json_encode($exclusions) ?>;
+
+function isCombinationForbidden(newId, existingIds) {
+  return existingIds.some(existingId =>
+    blockExclusions.some(pair =>
+      (pair[0] == newId && pair[1] == existingId) || (pair[1] == newId && pair[0] == existingId)
+    )
+  );
+}
+
 let budget = parseFloat(document.getElementById("budget").textContent);
 const budgetDisplay = document.getElementById("budget");
-
 let draggedElement = null;
 
 document.addEventListener("dragstart", function (e) {
@@ -145,7 +161,7 @@ document.addEventListener("dragstart", function (e) {
   }
 });
 
-document.addEventListener("dragend", function (e) {
+document.addEventListener("dragend", function () {
   if (draggedElement) {
     draggedElement.style.display = "block";
     draggedElement = null;
@@ -167,9 +183,19 @@ document.addEventListener("dragend", function (e) {
     this.classList.remove("drag-over");
     if (!draggedElement || draggedElement.parentNode === this) return;
 
-    const kosten = parseFloat(draggedElement.dataset.kosten);
+    const blockId = parseInt(draggedElement.dataset.id);
     const from = draggedElement.parentNode;
     const to = this;
+
+    // Prüfe auf verbotene Kombinationen
+    const allUsedBlockIds = Array.from(document.querySelectorAll(".slot-cell .block"))
+      .map(b => parseInt(b.dataset.id));
+    if (isCombinationForbidden(blockId, allUsedBlockIds)) {
+      alert("🚫 Diese Blockkombination ist laut Spielregel ausgeschlossen.");
+      return;
+    }
+
+    const kosten = parseFloat(draggedElement.dataset.kosten);
 
     if (from.id === "backlog" && to.classList.contains("slot-cell")) {
       if (budget >= kosten) {
