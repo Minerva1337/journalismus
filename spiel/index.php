@@ -54,14 +54,14 @@ $groups = $conn->query("SELECT * FROM groups");
     }
 
     button:hover {
-      background-color: #d070e0;
+      background-color: var(--hover-color);
     }
   </style>
 </head>
 <body>
 
 <div class="group-select-container">
-  <h2>🎯 Gruppe auswählen</h2>
+  <h2>Gruppe auswählen</h2>
   <form method="post">
     <select name="group_id" required>
       <option value="">-- Gruppe wählen --</option>
@@ -72,7 +72,7 @@ $groups = $conn->query("SELECT * FROM groups");
       <?php endwhile; ?>
     </select>
     <br>
-    <button type="submit">🎮 Spiel starten</button>
+    <button type="submit">Spiel starten</button>
   </form>
 </div>
 

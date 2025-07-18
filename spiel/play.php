@@ -133,7 +133,7 @@ ksort($grid);
 <br>
 <form id="auswertungForm" method="post" action="auswertung.php">
   <input type="hidden" name="belegungen" id="belegungenInput">
-  <button type="submit">📈 Ergebnis berechnen</button>
+  <button type="submit">Ergebnis berechnen</button>
 </form>
 
 <script>

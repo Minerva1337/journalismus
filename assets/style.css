@@ -4,6 +4,7 @@
 :root {
   --primary-color: #f89815;
   --secondary-color: #484349;
+  --hover-color: #ce8319;
   --design-color: #ffffff;
 }
 body {
@@ -87,5 +88,5 @@ button {
 }
 
 button:hover {
-  background-color: #cf6fdd;
+  background-color: var(--hover-color);
 }
