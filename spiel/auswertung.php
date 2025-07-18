@@ -60,8 +60,10 @@ foreach ($blocks as $b) {
 }
 $anzahl = count($blocks);
 $qual_durchschnitt = $anzahl ? $qual_summe / $anzahl : 0;
-$qual_faktor = $qual_durchschnitt / 10;
-$umsatz = ($reichweite * $qual_faktor) - $kosten;
+$qual_faktor = $qual_durchschnitt / 100;
+
+$umsatz = (($reichweite * 1000) * $qual_faktor) - $kosten; // ---------------------
+
 
 // Ergebnis speichern
 $stmt = $conn->prepare("REPLACE INTO ergebnisse (group_id, umsatz, reichweite, qualitaet_durchschnitt) VALUES (?, ?, ?, ?)");
@@ -76,9 +78,13 @@ $stmt->execute();
 <head><meta charset="UTF-8"><title>Ergebnis</title></head>
 <body>
 <h2>📊 Ergebnis</h2>
+<p> Der Umsatz setzt sich folgender maßen zusammen: Reichweite score * 1000 Clicks * Qualitätsdurchschnitt - Ausgaben </p>
 <p>💰 Umsatz: <?= number_format($umsatz, 2) ?> €</p>
-<p>📡 Reichweite: <?= $reichweite ?></p>
-<p>🎯 Qualität (∅): <?= number_format($qual_durchschnitt, 2) ?>/10</p>
+
+<p>📡 Generierte Reichweite: <?= $reichweite ?></p>
+<p> Die durchschnittliche Qualität wird berechnet: Qualitätssumme ÷ anzahl von verwendeten Blöcken</p>
+<p>🎯 Durchschnittliche Qualität: <?= number_format($qual_durchschnitt, 2) ?>/10</p>
+<br>
 <a href="play.php">🔁 Zurück zum Spiel</a>
 </body>
 </html>
