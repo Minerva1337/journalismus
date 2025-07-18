@@ -119,7 +119,7 @@ $stmt->execute();
 
 <div class="ergebnis-container">
   <h2>📊 Ergebnis</h2>
-  <p><strong>Umsatzberechnung:</strong> <br> <code>Reichweite * 1000 * (∅ Qualität / 10) - Ausgaben</code></p>
+  <p><strong>Umsatzberechnung:</strong> <br> <code>Reichweite * 1000 * (Durchschnitts Qualität / 10) - Ausgaben</code></p>
 
   <p>💰 <strong>Umsatz:</strong> <?= number_format($umsatz, 2) ?> €</p>
   <p>📡 <strong>Reichweite:</strong> <?= $reichweite ?></p>
