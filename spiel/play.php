@@ -78,7 +78,7 @@ ksort($grid);
 </head>
 <body>
 
-<h2>Willkommen, Gruppe: <?= htmlspecialchars($group['name']) ?> | Budget: <span id="budget"><?= number_format($verbleibendes_budget, 2) ?></span> €</h2>
+<h2>Willkommen, Gruppe: <?= htmlspecialchars($group['name']) ?> | Budget: <span id="budget" data-raw="<?= $verbleibendes_budget ?>"><?= number_format($verbleibendes_budget, 2, ',', '.') ?></span> €
 
 <div class="container">
   <div class="column" id="backlog">
@@ -147,7 +147,7 @@ function isCombinationForbidden(newId, existingIds) {
   );
 }
 
-let budget = parseFloat(document.getElementById("budget").textContent);
+let budget = parseFloat(document.getElementById("budget").dataset.raw);
 const budgetDisplay = document.getElementById("budget");
 let draggedElement = null;
 
