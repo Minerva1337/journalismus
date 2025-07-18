@@ -194,14 +194,14 @@ document.addEventListener("dragend", function () {
 
     const kosten = parseFloat(draggedElement.dataset.kosten);
 
-    if (from.id === "backlog" && to.classList.contains("slot-cell")) {
+    if (from.id === "backlog" && to.classList.contains("slot")) {
       if (budget >= kosten) {
         budget -= kosten;
         to.appendChild(draggedElement);
       } else {
         alert("Nicht genug Budget!");
       }
-    } else if (from.classList.contains("slot-cell") && to.id === "backlog") {
+    } else if (from.classList.contains("slot") && to.id === "backlog") {
       budget += kosten;
       to.appendChild(draggedElement);
     }
