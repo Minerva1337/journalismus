@@ -185,7 +185,7 @@ document.addEventListener("dragend", function () {
     const to = this;
 
     // Prüfe auf verbotene Kombinationen
-    const allUsedBlockIds = Array.from(document.querySelectorAll(".slot-cell .block"))
+    const allUsedBlockIds = Array.from(document.querySelectorAll(".slot .block"))
       .map(b => parseInt(b.dataset.id));
     if (isCombinationForbidden(blockId, allUsedBlockIds)) {
       alert("🚫 Diese Blockkombination ist laut Spielregel ausgeschlossen.");
