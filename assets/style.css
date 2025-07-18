@@ -1,0 +1,66 @@
+/* style.css */
+
+/* Grundfarben */
+:root {
+  --primary-color: #E980FC;
+  --secondary-color: #484349;
+  --design-color: #CDC5B4;
+}
+
+body {
+  background-color: var(--design-color);
+  font-family: Arial, sans-serif;
+  color: var(--secondary-color);
+}
+
+/* Blöcke */
+.block {
+  border: 2px solid var(--primary-color);
+  background-color: white;
+  padding: 10px;
+  margin: 8px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+  transition: transform 0.2s;
+}
+
+.block:hover {
+  transform: scale(1.03);
+}
+
+/* Slots */
+.slot {
+  border: 2px dashed var(--secondary-color);
+  background-color: #fff;
+  min-height: 100px;
+  margin: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  display: inline-block;
+  vertical-align: top;
+  width: 200px;
+}
+
+/* Einheitlicher Abstand in Slot-Container */
+.slot-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+/* Buttons etc. */
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #d070e0;
+}
