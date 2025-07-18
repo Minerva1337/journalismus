@@ -125,7 +125,7 @@ $stmt->execute();
   <p><strong>Reichweite:</strong> <?= $reichweite ?></p>
   <p><strong>∅ Qualität:</strong> <?= number_format($qual_durchschnitt, 2) ?> / 10</p>
 
-  <a href="play.php">🔁 Zurück zum Spiel</a>
+  <a href="play.php">Zurück zum Spiel</a>
 </div>
 
 </body>
