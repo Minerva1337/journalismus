@@ -104,33 +104,29 @@ ksort($grid);
 
   <div>
     <h3>🧩 Slot-Tabelle</h3>
-    <table class="slot-table">
-      <?php foreach ($grid as $row): ?>
-        <tr>
-          <?php foreach ($row as $slot): ?>
-            <td class="slot-cell" id="slot-<?= $slot['id'] ?>" data-slot-id="<?= $slot['id'] ?>">
-              <strong><?= htmlspecialchars($slot['name']) ?></strong><br>
-              <?php
-                if (isset($belegungen[$slot['id']])) {
-                    $block = $block_map[$belegungen[$slot['id']]];
-                    echo '<div class="block" draggable="true"
-                          data-kosten="' . $block['kosten'] . '"
-                          data-reichweite="' . $block['reichweite'] . '"
-                          data-qualität="' . $block['qualität'] . '"
-                          data-id="' . $block['id'] . '">';
-                    echo '<strong>' . htmlspecialchars($block['name']) . '</strong><br>';
-                    echo '<em>' . htmlspecialchars($block['description']) . '</em><br>';
-                    echo 'Kosten: ' . $block['kosten'] . ' €<br>';
-                    echo 'Reichweite: ' . $block['reichweite'] . '<br>';
-                    echo 'Qualität: ' . $block['qualität'];
-                    echo '</div>';
-                }
-              ?>
-            </td>
-          <?php endforeach; ?>
-        </tr>
-      <?php endforeach; ?>
-    </table>
+<div class="slot-container">
+  <?php foreach ($slots as $slot): ?>
+    <div class="slot" id="slot-<?= $slot['id'] ?>" data-slot-id="<?= $slot['id'] ?>">
+      <strong><?= htmlspecialchars($slot['name']) ?></strong>
+      <?php
+        if (isset($belegungen[$slot['id']])) {
+            $block = $block_map[$belegungen[$slot['id']]];
+            echo '<div class="block" draggable="true"
+                  data-kosten="' . $block['kosten'] . '"
+                  data-reichweite="' . $block['reichweite'] . '"
+                  data-qualität="' . $block['qualität'] . '"
+                  data-id="' . $block['id'] . '">';
+            echo '<strong>' . htmlspecialchars($block['name']) . '</strong><br>';
+            echo '<em>' . htmlspecialchars($block['description']) . '</em><br>';
+            echo 'Kosten: ' . $block['kosten'] . ' €<br>';
+            echo 'Reichweite: ' . $block['reichweite'] . '<br>';
+            echo 'Qualität: ' . $block['qualität'];
+            echo '</div>';
+        }
+      ?>
+    </div>
+  <?php endforeach; ?>
+</div>
   </div>
 </div>
 
