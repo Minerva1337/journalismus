@@ -7,9 +7,16 @@
   --hover-color: #ce8319;
   --design-color: #ffffff;
 }
+
+html {
+  font-size: 16px;
+}
+
+
 body {
   background-color: var(--design-color);
   font-family: Arial, sans-serif;
+  font-size: 1rem;
   color: var(--secondary-color);
   margin: 0;
   padding: 20px;
