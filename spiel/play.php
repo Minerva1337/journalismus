@@ -63,7 +63,7 @@ ksort($grid);
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <link rel="stylesheet" href="/journalismus/assets/style.css">
+  <link rel="stylesheet" href="/assets/style.css">
   <meta charset="UTF-8">
   <title>Planspiel</title>
   <style>
