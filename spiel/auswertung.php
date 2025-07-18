@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 include '../admin/db.php';
@@ -60,10 +59,9 @@ foreach ($blocks as $b) {
 }
 $anzahl = count($blocks);
 $qual_durchschnitt = $anzahl ? $qual_summe / $anzahl : 0;
-$qual_faktor = $qual_durchschnitt / 100;
+$qual_faktor = $qual_durchschnitt / 10;
 
-$umsatz = (($reichweite * 1000) * $qual_faktor) - $kosten; // ---------------------
-
+$umsatz = (($reichweite * 1000) * $qual_faktor) - $kosten;
 
 // Ergebnis speichern
 $stmt = $conn->prepare("REPLACE INTO ergebnisse (group_id, umsatz, reichweite, qualitaet_durchschnitt) VALUES (?, ?, ?, ?)");
@@ -73,18 +71,62 @@ if (!$stmt) {
 $stmt->bind_param("iddi", $group_id, $umsatz, $reichweite, $qual_durchschnitt);
 $stmt->execute();
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
-<head><meta charset="UTF-8"><title>Ergebnis</title></head>
-<body>
-<h2>📊 Ergebnis</h2>
-<p> Der Umsatz setzt sich folgender maßen zusammen: Reichweite score * 1000 Clicks * Qualitätsdurchschnitt - Ausgaben </p>
-<p>💰 Umsatz: <?= number_format($umsatz, 2) ?> €</p>
+<head>
+  <meta charset="UTF-8">
+  <title>Ergebnis</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .ergebnis-container {
+      max-width: 600px;
+      margin: 80px auto;
+      background-color: #fff;
+      border: 2px solid var(--primary-color);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    }
 
-<p>📡 Generierte Reichweite: <?= $reichweite ?></p>
-<p> Die durchschnittliche Qualität wird berechnet: Qualitätssumme ÷ anzahl von verwendeten Blöcken</p>
-<p>🎯 Durchschnittliche Qualität: <?= number_format($qual_durchschnitt, 2) ?>/10</p>
-<br>
-<a href="play.php">🔁 Zurück zum Spiel</a>
+    .ergebnis-container h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--secondary-color);
+    }
+
+    .ergebnis-container p {
+      font-size: 1.1em;
+      margin-bottom: 10px;
+    }
+
+    .ergebnis-container a {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      background-color: var(--primary-color);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+    }
+
+    .ergebnis-container a:hover {
+      background-color: var(--hover-color);;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ergebnis-container">
+  <h2>📊 Ergebnis</h2>
+  <p><strong>Umsatzberechnung:</strong> <br> <code>Reichweite * 1000 * (∅ Qualität / 10) - Ausgaben</code></p>
+
+  <p>💰 <strong>Umsatz:</strong> <?= number_format($umsatz, 2) ?> €</p>
+  <p>📡 <strong>Reichweite:</strong> <?= $reichweite ?></p>
+  <p>🎯 <strong>∅ Qualität:</strong> <?= number_format($qual_durchschnitt, 2) ?> / 10</p>
+
+  <a href="play.php">🔁 Zurück zum Spiel</a>
+</div>
+
 </body>
 </html>
