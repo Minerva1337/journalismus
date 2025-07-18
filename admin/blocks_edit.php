@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <label>Beschreibung: <textarea name="description"><?= htmlspecialchars($block['description']) ?></textarea></label><br>
   <label>Kosten: <input name="kosten" type="number" step="0.01" value="<?= $block['kosten'] ?>" required></label><br>
     <label>Reichweite: <input name="reichweite" type="number" value="<?= $block['reichweite'] ?>" required></label><br>
-    <label>Qualität: <input name="qualität" type="number" min="1" max="10" value="<?= $block['qualität'] ?>" required></label><br>
+    <label>Qualität: <input name="qualität" type="number" min="-100" max="100" value="<?= $block['qualität'] ?>" required></label><br>
 
   <button type="submit">Änderungen speichern</button>
 </form>

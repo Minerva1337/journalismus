@@ -16,6 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <label>Beschreibung: <textarea name="description"></textarea></label><br>
   <label>Kosten: <input name="kosten" type="number" step="0.01" required></label><br>
   <label>Reichweite: <input name="reichweite" type="number" required></label><br>
-  <label>Qualität: <input name="qualität" type="number" min="1" max="10" required></label><br>
+  <label>Qualität: <input name="qualität" type="number" min="-100" max="100" required></label><br>
   <button type="submit">Speichern</button>
 </form>
