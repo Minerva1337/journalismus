@@ -51,6 +51,17 @@ body {
   margin-top: 30px;
 }
 
+/* Abstand zwischen Slot-Zellen (auch in Tabellen) */
+.slot-cell {
+  border: 1px solid #aaa;
+  width: 200px;
+  height: 150px;
+  vertical-align: top;
+  padding: 5px;
+  margin: 8px; /* <--- Abstand außen */
+}
+
+
 /* Buttons etc. */
 button {
   background-color: var(--primary-color);
