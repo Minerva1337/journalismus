@@ -165,7 +165,7 @@ document.addEventListener("dragend", function () {
   }
 });
 
-[...document.querySelectorAll(".slot-cell"), document.getElementById("backlog")].forEach(container => {
+[...document.querySelectorAll(".slot"), document.getElementById("backlog")].forEach(container => {
   container.addEventListener("dragover", function (e) {
     e.preventDefault();
     this.classList.add("drag-over");
@@ -214,7 +214,7 @@ document.getElementById("auswertungForm").addEventListener("submit", function(e)
   e.preventDefault();
 
   const belegungen = {};
-  document.querySelectorAll(".slot-cell").forEach(slot => {
+document.querySelectorAll(".slot").forEach(slot => {
     const block = slot.querySelector(".block");
     if (block) {
       belegungen[slot.dataset.slotId] = block.dataset.id;
