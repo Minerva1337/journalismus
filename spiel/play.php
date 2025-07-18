@@ -82,7 +82,7 @@ ksort($grid);
 
 <div class="container">
   <div class="column" id="backlog">
-    <h3>📦 Backlog</h3>
+    <h3>Backlog</h3>
     <?php
       foreach ($blocks as $block) {
           if (!in_array($block['id'], $belegungen)) {
@@ -103,7 +103,7 @@ ksort($grid);
   </div>
 
   <div>
-    <h3>🧩 Slot-Tabelle</h3>
+    <h3>Slot-Tabelle</h3>
 <div class="slot-container">
   <?php foreach ($slots as $slot): ?>
     <div class="slot" id="slot-<?= $slot['id'] ?>" data-slot-id="<?= $slot['id'] ?>">

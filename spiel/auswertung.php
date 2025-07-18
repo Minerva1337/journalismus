@@ -118,12 +118,12 @@ $stmt->execute();
 <body>
 
 <div class="ergebnis-container">
-  <h2>📊 Ergebnis</h2>
-  <p><strong>Umsatzberechnung:</strong> <br> <code>Reichweite * 1000 * (Durchschnitts Qualität / 10) - Ausgaben</code></p>
+  <h2>Ergebnis</h2>
+  <p><strong>Umsatzberechnung:</strong> <br> <code>Reichweite * 1000 * (Durchschnitts Qualität / 100) - Ausgaben</code></p>
 
-  <p>💰 <strong>Umsatz:</strong> <?= number_format($umsatz, 2) ?> €</p>
-  <p>📡 <strong>Reichweite:</strong> <?= $reichweite ?></p>
-  <p>🎯 <strong>∅ Qualität:</strong> <?= number_format($qual_durchschnitt, 2) ?> / 10</p>
+  <p><strong>Umsatz:</strong> <?= number_format($umsatz, 2) ?> €</p>
+  <p><strong>Reichweite:</strong> <?= $reichweite ?></p>
+  <p><strong>∅ Qualität:</strong> <?= number_format($qual_durchschnitt, 2) ?> / 10</p>
 
   <a href="play.php">🔁 Zurück zum Spiel</a>
 </div>
