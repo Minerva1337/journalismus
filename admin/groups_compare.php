@@ -49,7 +49,7 @@ $result = $conn->query("
 </head>
 <body>
 
-<h2>📊 Gruppenvergleich – Ergebnisse</h2>
+<h2>Gruppenvergleich – Ergebnisse</h2>
 <table>
   <tr>
     <th>Gruppe</th>

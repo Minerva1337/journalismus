@@ -3,13 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <title>Planspiel Startseite</title>
+  <link rel="stylesheet" href="assets/style.css"> <!-- Pfad ggf. anpassen -->
+  <style>
+    .start-container {
+      max-width: 600px;
+      margin: 80px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border: 2px solid var(--primary-color);
+      border-radius: 12px;
+      box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .start-container h1 {
+      color: var(--secondary-color);
+    }
+
+    .start-container p {
+      font-size: 1.1em;
+      margin-bottom: 30px;
+    }
+
+    .start-container a.button {
+      display: inline-block;
+      margin: 10px;
+      padding: 12px 20px;
+      background-color: var(--primary-color);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .start-container a.button:hover {
+      background-color: #d070e0; /* dunklere Hover-Farbe */
+    }
+  </style>
 </head>
 <body>
-  <h1>Willkommen beim Planspiel</h1>
-  <p>Dies ist die interaktive Planspiel-Plattform. Bitte wähle eine Aktion:</p>
-  <ul>
-    <li><a href="admin/login.php">🔐 Zum Admin Login</a></li>
-    <!-- z. B. später Gruppen-Login oder Spiel starten -->
-  </ul>
+
+  <div class="start-container">
+    <h1>Willkommen beim Planspiel</h1>
+    <p>Dies ist die interaktive Planspiel-Plattform. Bitte wähle eine Aktion:</p>
+
+    <a href="admin/login.php" class="button">Admin Login</a>
+    <a href="spiel/index.php" class="button">Spiel starten</a>
+  </div>
+
 </body>
 </html>
