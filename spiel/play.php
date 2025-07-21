@@ -70,9 +70,24 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
       border-radius: 8px;
       background: #fefefe;
     }
-    .block { border: 1px solid #ccc; margin: 5px; padding: 10px; background: #f0f0f0; cursor: grab; }
+    .block {
+      border: 1px solid #ccc;
+      margin: 5px;
+      padding: 10px;
+      background: #f0f0f0;
+      cursor: grab;
+      width: 100%;
+      box-sizing: border-box;
+    }
     .slot-container { display: grid; grid-template-columns: repeat(auto-fill, 200px); gap: 15px; }
-    .slot { border: 1px solid #aaa; padding: 8px; min-height: 140px; }
+    .slot { 
+      border: 1px solid #aaa; 
+      padding: 8px; 
+      min-height: 140px; 
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
     .drag-over { background-color: #e0ffe0; }
     .backlog-grid {
       display: grid;
