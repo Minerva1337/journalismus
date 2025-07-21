@@ -199,8 +199,8 @@ document.addEventListener("dragend", () => {
     if (!draggedElement || draggedElement.parentNode === container) return;
 
     const blockId = parseInt(draggedElement.dataset.id);
-    const from = draggedElement.parentNode;
-    const to = container;
+    const from = draggedElement.closest(".slot, #backlog");
+    const to = container.closest(".slot, #backlog");
 
     const currentBlocks = Array.from(document.querySelectorAll(".slot .block"))
       .map(b => parseInt(b.dataset.id));
