@@ -65,7 +65,7 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
       border: 1px solid #aaa;
       padding: 10px;
       min-height: 400px;
-      width: 350px;
+      width: 360px;
       box-sizing: border-box;
       border-radius: 8px;
       background: #fefefe;
@@ -76,7 +76,7 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
       padding: 10px;
       background: #f0f0f0;
       cursor: grab;
-      width: 100%;
+      width: 95%;
       box-sizing: border-box;
     }
     .slot-container { display: grid; grid-template-columns: repeat(auto-fill, 200px); gap: 15px; }
