@@ -74,7 +74,8 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
 
 <div class="container">
   <div class="column" id="backlog">
-    <h3>Backlog</h3>
+  <h3>Backlog</h3>
+  <div class="backlog-grid">
     <?php foreach ($blocks as $block): ?>
       <?php if (!in_array($block['id'], $belegungen)): ?>
         <div class="block" draggable="true"
@@ -91,6 +92,7 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
       <?php endif; ?>
     <?php endforeach; ?>
   </div>
+</div>
 
   <div>
     <h3>Slot-Tabelle</h3>

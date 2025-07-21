@@ -107,3 +107,9 @@ button:hover {
   padding: 10px;
   border-radius: 8px;
 }
+
+.backlog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Zwei Spalten */
+  gap: 12px;
+}
