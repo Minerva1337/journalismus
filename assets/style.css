@@ -32,7 +32,7 @@ body {
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
   cursor: grab;
   transition: transform 0.2s;
-  width: 100%;
+  width: 95%;
 }
 
 .block:hover {
@@ -103,6 +103,7 @@ button:hover {
 }
 
 #backlog {
+  min-width: 450px;
   border: 2px solid #484349;
   background: #fefefe;
   padding: 10px;
