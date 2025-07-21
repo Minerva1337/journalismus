@@ -74,23 +74,24 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
 
 <div class="container">
   <div class="column" id="backlog">
-  <h3>Backlog</h3>
-  <div class="backlog-grid">
-    <?php foreach ($blocks as $block): ?>
-      <?php if (!in_array($block['id'], $belegungen)): ?>
-        <div class="block" draggable="true"
-             data-kosten="<?= $block['kosten'] ?>"
-             data-reichweite="<?= $block['reichweite'] ?>"
-             data-qualität="<?= $block['qualität'] ?>"
-             data-id="<?= $block['id'] ?>">
-          <strong><?= htmlspecialchars($block['name']) ?></strong><br>
-          <em><?= htmlspecialchars($block['description']) ?></em><br>
-          Kosten: <?= $block['kosten'] ?> €<br>
-          Reichweite: <?= $block['reichweite'] ?><br>
-          Qualität: <?= $block['qualität'] ?>
-        </div>
-      <?php endif; ?>
-    <?php endforeach; ?>
+    <h3>Backlog</h3>
+    <div class="backlog-grid">
+      <?php foreach ($blocks as $block): ?>
+        <?php if (!in_array($block['id'], $belegungen)): ?>
+          <div class="block" draggable="true"
+              data-kosten="<?= $block['kosten'] ?>"
+              data-reichweite="<?= $block['reichweite'] ?>"
+              data-qualität="<?= $block['qualität'] ?>"
+              data-id="<?= $block['id'] ?>">
+            <strong><?= htmlspecialchars($block['name']) ?></strong><br>
+            <em><?= htmlspecialchars($block['description']) ?></em><br>
+            Kosten: <?= $block['kosten'] ?> €<br>
+            Reichweite: <?= $block['reichweite'] ?><br>
+            Qualität: <?= $block['qualität'] ?>
+          </div>
+        <?php endif; ?>
+      <?php endforeach; ?>
+    </div>
   </div>
 </div>
 
