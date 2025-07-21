@@ -66,6 +66,11 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
     .slot-container { display: grid; grid-template-columns: repeat(auto-fill, 200px); gap: 15px; }
     .slot { border: 1px solid #aaa; padding: 8px; min-height: 140px; }
     .drag-over { background-color: #e0ffe0; }
+    .backlog-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
