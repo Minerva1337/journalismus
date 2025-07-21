@@ -98,8 +98,6 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
       <?php endforeach; ?>
     </div>
   </div>
-</div>
-
   <div>
     <h3>Slot-Tabelle</h3>
     <div class="slot-container">
