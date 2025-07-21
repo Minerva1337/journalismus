@@ -87,6 +87,7 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
       display: flex;
       flex-direction: column;
       align-items: stretch;
+      position: relative;
     }
     .drag-over { background-color: #e0ffe0; }
     .backlog-grid {
@@ -222,6 +223,8 @@ document.addEventListener("dragend", () => {
       }
     } else if (from.classList.contains("slot") && to.id === "backlog") {
       budget += kosten;
+      to.appendChild(draggedElement);
+    } else if (from.classList.contains("slot") && to.classList.contains("slot")) {
       to.appendChild(draggedElement);
     }
 
