@@ -151,7 +151,7 @@ $verbleibendes_budget = $original_budget - $verbrauchtes_budget;
 <br>
 <form id="auswertungForm" method="post" action="auswertung.php">
   <input type="hidden" name="belegungen" id="belegungenInput">
-  <button type="submit">Ergebnis berechnen</button>
+  <button type="submit">Speichern</button>
 </form>
 
 <script>
